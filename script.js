@@ -220,25 +220,25 @@ window.onload = function() {
         console.error('未找到幻燈片元素'); // 調試用
     }
 
+    // 影片處理
+    document.addEventListener('DOMContentLoaded', function() {
+        const videoThumbnails = document.querySelectorAll('.video-thumbnail');
+        
+        videoThumbnails.forEach(thumbnail => {
+            // 移除原有的點擊事件處理
+            thumbnail.addEventListener('click', function(e) {
+                // 讓連結正常運作
+                return true;
+            });
+        });
+    });
+
     // 影片播放功能
-    const videoThumbnails = document.querySelectorAll('.video-thumbnail');
     const videoModal = document.getElementById('video-modal');
     const videoFrame = document.getElementById('video-frame');
     const closeModal = document.querySelector('.close-modal');
 
-    if (videoThumbnails.length > 0 && videoModal && videoFrame && closeModal) {
-        videoThumbnails.forEach(thumbnail => {
-            thumbnail.addEventListener('click', function() {
-                const videoId = this.getAttribute('data-video-id');
-                if (videoId) {
-                    const videoUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0&showinfo=0`;
-                    videoFrame.src = videoUrl;
-                    videoModal.style.display = 'flex';
-                    document.body.style.overflow = 'hidden';
-                }
-            });
-        });
-
+    if (videoModal && videoFrame && closeModal) {
         closeModal.addEventListener('click', function() {
             videoModal.style.display = 'none';
             videoFrame.src = '';
