@@ -456,7 +456,7 @@ footer {
     margin-bottom: 0;
     z-index: 10;
     box-sizing: border-box;
-    width: 100vw;
+    width: 99.55vw;
     margin-left: calc(50% - 50vw);
     margin-right: calc(50% - 50vw);
     position: static;
@@ -499,7 +499,7 @@ footer {
 
 /* 聯絡表單 */
 .contact {
-    width: 100vw;
+    width: 99.55vw;
     margin-left: calc(50% - 50vw);
     margin-right: calc(50% - 50vw);
     background-color: var(--beige);
