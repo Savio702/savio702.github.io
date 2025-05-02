@@ -115,18 +115,6 @@ header {
     transform: scaleX(1);
 }
 
-h3 {
-    display: block;
-    font-size: 2em;
-    margin-block-start: 1em;
-    margin-block-end: 1em;
-    margin-inline-start: 0px;
-    margin-inline-end: 0px;
-    font-weight: bold;
-    unicode-bidi: isolate;
-    padding-left : 100px
-}
-
 nav {
     display: flex;
     justify-content: space-between;
@@ -145,7 +133,7 @@ nav ul {
 
 nav ul li a {
     text-decoration: none;
-    font-size: 1.4rem;
+    font-size: 1.2rem;
     color: var(--text-color);
     font-weight: 300;
     letter-spacing: 2px;
@@ -378,6 +366,18 @@ nav ul li a:hover::after {
 }
 
 /* 作品集區域 */
+.subtitle{
+    display: block;
+    font-size: 1.17em;
+    margin-block-start: 1em;
+    margin-block-end: 1em;
+    margin-inline-start: 0px;
+    margin-inline-end: 0px;
+    font-weight: bold;
+    unicode-bidi: isolate;
+    padding-left: 100px;
+}
+
 .portfolio {
     padding: 5rem 2rem;
     background-color: var(--white);
