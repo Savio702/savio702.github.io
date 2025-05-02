@@ -368,7 +368,7 @@ nav ul li a:hover::after {
 /* 作品集區域 */
 .subtitle{
     display: block;
-    font-size: 1.17em;
+    font-size: 2em;
     margin-block-start: 1em;
     margin-block-end: 1em;
     margin-inline-start: 0px;
