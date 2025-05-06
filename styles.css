@@ -516,34 +516,22 @@ footer {
     margin-right: calc(50% - 50vw);
     background-color: var(--beige);
     position: relative;
-    padding-top: 3rem;
-    padding-bottom: 3rem;
-    padding-left: 0;
-    padding-right: 0;
+    padding: 2rem 0;
+    margin-top: -2rem;
 }
 
 .contact-container {
-    max-width: 800px;
+    max-width: 1200px;
     margin: 0 auto;
+    padding: 0 2rem;
 }
 
 .contact h2 {
-    font-size: 2rem;
+    font-size: 3rem;
     font-weight: 300;
-    margin-bottom: 3rem;
+    margin-bottom: 2rem;
     text-align: center;
     position: relative;
-}
-
-.contact h2::after {
-    content: '';
-    position: absolute;
-    bottom: -10px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 50px;
-    height: 2px;
-    background-color: var(--accent);
 }
 
 .social-links {
@@ -551,7 +539,7 @@ footer {
     justify-content: center;
     align-items: center;
     gap: 2rem;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;  /* 防止換行 */
 }
 
 .social-link {
@@ -561,11 +549,18 @@ footer {
     text-decoration: none;
     color: var(--text-color);
     transition: all 0.3s ease;
-    padding: 1.5rem;
+    padding: 2rem;
     border-radius: 15px;
     background: var(--white);
-    width: 180px;
+    width: 270px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    flex: 1;  /* 平均分配空間 */
+    max-width: 300px;  /* 限制最大寬度 */
+}
+
+/* 移除重複的 social-links 樣式 */
+.contact .social-links:last-child {
+    display: none;  /* 隱藏重複的連結 */
 }
 
 .social-link:hover {
@@ -574,9 +569,9 @@ footer {
 }
 
 .social-link img {
-    width: 40px;
-    height: 40px;
-    margin-bottom: 1rem;
+    width: 60px;
+    height: 60px;
+    margin-bottom: 1.5rem;
     transition: transform 0.3s ease;
 }
 
@@ -585,7 +580,7 @@ footer {
 }
 
 .social-link span {
-    font-size: 1.1rem;
+    font-size: 1.65rem;
     font-weight: 500;
     transition: color 0.3s ease;
 }
@@ -613,7 +608,21 @@ footer {
     
     .social-link {
         width: 100%;
-        max-width: 300px;
+        max-width: 450px;
+        padding: 2rem;
+    }
+
+    .social-link img {
+        width: 45px;
+        height: 45px;
+    }
+
+    .social-link span {
+        font-size: 1.5rem;
+    }
+
+    .contact h2 {
+        font-size: 2.5rem;
     }
 }
 
