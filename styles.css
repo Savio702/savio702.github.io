@@ -406,7 +406,6 @@ nav ul li a:hover::after {
 }
 
 .portfolio-category h2::after {
-    content: '';
     position: absolute;
     bottom: -1px;
     left: 0;
