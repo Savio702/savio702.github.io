@@ -183,7 +183,7 @@ const hideScrollElement = (element) => {
 
 const handleScrollAnimation = () => {
     scrollElements.forEach((el) => {
-        if (elementInView(el, 1.25)) {
+        if (elementInView(el, 1)) {
             displayScrollElement(el);
         } else {
             hideScrollElement(el);
@@ -195,7 +195,7 @@ const handleScrollAnimation = () => {
 scrollElements.forEach(el => {
     el.style.opacity = '0';
     el.style.transform = 'translateY(20px)';
-    el.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+    el.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
 });
 
 window.addEventListener('scroll', handleScrollAnimation);
