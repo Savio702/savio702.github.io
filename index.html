@@ -10,24 +10,32 @@
 </head>
 <body>
     <!-- 導航列 -->
-    <nav> 
-        <div class="logo">DA放異彩</div>
-        <div class="menu-toggle">
-            <span></span>
-            <span></span>
-            <span></span>
+    <nav>
+        <div class="nav-left">
+            <div class="logo">DA放異彩</div>
         </div>
-        <ul>
-            <li><a href="#home">首頁</a></li>
-            <li><a href="#portfolio">作品集</a></li>
-            <li><a href="#contact">聯絡我們</a></li>
-        </ul>
+        <div class="nav-right">
+            <div class="menu-toggle">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+            <ul>
+                <li><a href="#home">首頁</a></li>
+                <li><a href="#interview">訪談影片</a></li>
+                <li><a href="#activity">活動紀錄</a></li>
+                <li><a href="#business">商業形象</a></li>
+                <li><a href="#online">線上課程</a></li>
+                <li><a href="#short-video">短影音</a></li>
+                <li><a href="#contact">聯絡我們</a></li>
+            </ul>
+        </div>
     </nav>
 
     <main>
     <!-- 幻燈片區域 -->
-    <div class="slideshow" id="home">
-        <div class="slideshow-container">
+    <div class="slidebackground" id="home">
+        <div class="slideshow">
             <div class="slide active">
                 <img src="images/Cover/1_Act.jpg" alt="作品展示1">
                 <div class="slide-content">
@@ -143,7 +151,7 @@
     <section id="portfolio" class="portfolio">
         <h1>作品集</h1>
         
-        <div class="portfolio-category">
+        <div class="portfolio-category" id="interview">
             <!-- 訪談影片-1 -->
             <h3 class="subtitle">訪談影片</h3>
             <div class="portfolio-grid">
@@ -223,7 +231,7 @@
                 </div> -->
         </div>
 
-        <div class="portfolio-category">
+        <div class="portfolio-category" id="activity">
             <!-- 活動紀錄-2 -->
             <h3 class="subtitle">活動紀錄</h3>
             <div class="portfolio-grid">
@@ -335,7 +343,7 @@
             </div>
         </div>
 
-        <div class="portfolio-category">
+        <div class="portfolio-category" id="business">
             <!-- 商業形象-3 -->
             <h3 class="subtitle">商業形象</h3>
             <div class="portfolio-grid">
@@ -477,7 +485,7 @@
 
         </div>
 
-        <div class="portfolio-category">
+        <div class="portfolio-category" id="online">
             <!-- 線上課程-4 -->
             <h3 class="subtitle">線上課程</h3>
             <div class="portfolio-grid">
@@ -528,7 +536,7 @@
 
         </div>
 
-        <div class="portfolio-category short-video">
+        <div class="portfolio-category short-video" id="short-video">
             <!-- 短影音-5 -->
             <h3 class="subtitle">短影音</h3>
             <div class="portfolio-grid">

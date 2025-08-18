@@ -273,63 +273,66 @@ window.onload = function() {
     const menuSpans = document.querySelectorAll('.menu-toggle span');
     let isMenuOpen = false;
 
-    // 切換選單狀態的函數
-    function toggleMenu() {
-        isMenuOpen = !isMenuOpen;
-        navMenu.classList.toggle('active');
-        
-        // 漢堡選單動畫
-        menuSpans.forEach((span, index) => {
-            if (isMenuOpen) {
-                if (index === 0) {
-                    span.style.transform = 'rotate(45deg) translate(5px, 5px)';
-                } else if (index === 1) {
-                    span.style.opacity = '0';
-                } else if (index === 2) {
-                    span.style.transform = 'rotate(-45deg) translate(7px, -6px)';
+    // 確保元素存在後才執行
+    if (menuToggle && navMenu && menuSpans.length > 0) {
+        // 切換選單狀態的函數
+        function toggleMenu() {
+            isMenuOpen = !isMenuOpen;
+            navMenu.classList.toggle('active');
+            
+            // 漢堡選單動畫
+            menuSpans.forEach((span, index) => {
+                if (isMenuOpen) {
+                    if (index === 0) {
+                        span.style.transform = 'rotate(45deg) translate(5px, 5px)';
+                    } else if (index === 1) {
+                        span.style.opacity = '0';
+                    } else if (index === 2) {
+                        span.style.transform = 'rotate(-45deg) translate(7px, -6px)';
+                    }
+                } else {
+                    span.style.transform = '';
+                    span.style.opacity = '';
                 }
-            } else {
-                span.style.transform = '';
-                span.style.opacity = '';
-            }
-        });
-    }
-
-    // 關閉選單的函數
-    function closeMenu() {
-        if (isMenuOpen) {
-            isMenuOpen = false;
-            navMenu.classList.remove('active');
-            menuSpans.forEach(span => {
-                span.style.transform = '';
-                span.style.opacity = '';
             });
         }
-    }
 
-    // 點擊漢堡選單按鈕
-    menuToggle.addEventListener('click', function(e) {
-        e.stopPropagation();
-        toggleMenu();
-    });
-
-    // 點擊選單項目後關閉選單
-    const navLinks = document.querySelectorAll('nav ul li a');
-    navLinks.forEach(link => {
-        link.addEventListener('click', function() {
-            closeMenu();
-        });
-    });
-
-    // 點擊頁面其他區域時關閉選單
-    document.addEventListener('click', function(event) {
-        if (!event.target.closest('nav')) {
-            closeMenu();
+        // 關閉選單的函數
+        function closeMenu() {
+            if (isMenuOpen) {
+                isMenuOpen = false;
+                navMenu.classList.remove('active');
+                menuSpans.forEach(span => {
+                    span.style.transform = '';
+                    span.style.opacity = '';
+                });
+            }
         }
-    });
 
-    // 防止選單內的點擊事件冒泡
-    navMenu.addEventListener('click', function(e) {
-        e.stopPropagation();
-    });
+        // 點擊漢堡選單按鈕
+        menuToggle.addEventListener('click', function(e) {
+            e.stopPropagation();
+            toggleMenu();
+        });
+
+        // 點擊選單項目後關閉選單
+        const navLinks = document.querySelectorAll('nav ul li a');
+        navLinks.forEach(link => {
+            link.addEventListener('click', function() {
+                closeMenu();
+            });
+        });
+
+        // 點擊頁面其他區域時關閉選單
+        document.addEventListener('click', function(event) {
+            if (!event.target.closest('nav')) {
+                closeMenu();
+            }
+        });
+
+        // 防止選單內的點擊事件冒泡
+        navMenu.addEventListener('click', function(e) {
+            e.stopPropagation();
+        });
+    }
 }; 
