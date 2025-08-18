@@ -44,6 +44,19 @@ body {
     font-weight: 700;
 }
 
+.nav-logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.nav-logo-img {
+    width: 50px;
+    height: 50px;
+    object-fit: contain;
+    display: block;
+}
+
 .nav-menu {
     display: flex;
     list-style: none;
@@ -301,6 +314,8 @@ body {
     border-radius: 0;
     background: linear-gradient(45deg, #667eea, #764ba2);
 }
+
+/* 短影音沿用一般比例（取消直式） */
 
 /* 作品圖片填滿容器 */
 .portfolio-image img {
