@@ -95,10 +95,22 @@ const showRandomFourAll = () => {
     showOnlyItems(pick);
 };
 
-// 改進的篩選功能，支援觸控
+// 改進的篩選功能，支援觸控並防止滾動時意外觸發
 filterButtons.forEach(button => {
+    let touchStartY = 0;
+    let touchEndY = 0;
+    let touchStartTime = 0;
+    let touchEndTime = 0;
+    let isScrolling = false;
+    let scrollTimeout;
+
     // 支援點擊和觸控
     const handleFilter = () => {
+        // 如果是滾動狀態，不觸發篩選
+        if (isScrolling) {
+            return;
+        }
+        
         filterButtons.forEach(btn => btn.classList.remove('active'));
         button.classList.add('active');
 
@@ -114,11 +126,48 @@ filterButtons.forEach(button => {
         showOnlyItems(matched);
     };
 
-    button.addEventListener('click', handleFilter);
+    // 觸控開始
+    button.addEventListener('touchstart', (e) => {
+        touchStartY = e.touches[0].clientY;
+        touchStartTime = Date.now();
+        isScrolling = false;
+        
+        // 清除之前的滾動超時
+        if (scrollTimeout) {
+            clearTimeout(scrollTimeout);
+        }
+    }, { passive: true });
+
+    // 觸控移動
+    button.addEventListener('touchmove', (e) => {
+        touchEndY = e.touches[0].clientY;
+        const touchDiff = Math.abs(touchEndY - touchStartY);
+        
+        // 如果垂直移動距離超過10px，認為是滾動
+        if (touchDiff > 10) {
+            isScrolling = true;
+        }
+    }, { passive: true });
+
+    // 觸控結束
     button.addEventListener('touchend', (e) => {
-        e.preventDefault();
-        handleFilter();
+        touchEndTime = Date.now();
+        const touchDuration = touchEndTime - touchStartTime;
+        const touchDiff = Math.abs(touchEndY - touchStartY);
+        
+        // 如果觸控時間短於300ms且移動距離小於10px，認為是點擊
+        if (touchDuration < 300 && touchDiff < 10 && !isScrolling) {
+            e.preventDefault();
+            handleFilter();
+        }
+        
+        // 延遲重置滾動狀態，防止快速連續觸控
+        scrollTimeout = setTimeout(() => {
+            isScrolling = false;
+        }, 100);
     });
+
+    button.addEventListener('click', handleFilter);
 });
 
 // 技能條動畫
@@ -345,20 +394,70 @@ const closeLightbox = () => {
     document.body.style.overflow = '';
 };
 
-// 改進的作品集項目點擊處理，支援觸控
+// 改進的作品集項目點擊處理，支援觸控並防止滾動時意外觸發
 portfolioItems.forEach(item => {
+    let touchStartY = 0;
+    let touchEndY = 0;
+    let touchStartTime = 0;
+    let touchEndTime = 0;
+    let isScrolling = false;
+    let scrollTimeout;
+
     const handleItemClick = () => {
+        // 如果是滾動狀態，不觸發影片播放
+        if (isScrolling) {
+            return;
+        }
+        
         const url = item.getAttribute('data-video-url');
         if (url) {
             openLightboxWithUrl(url);
         }
     };
 
-    item.addEventListener('click', handleItemClick);
+    // 觸控開始
+    item.addEventListener('touchstart', (e) => {
+        touchStartY = e.touches[0].clientY;
+        touchStartTime = Date.now();
+        isScrolling = false;
+        
+        // 清除之前的滾動超時
+        if (scrollTimeout) {
+            clearTimeout(scrollTimeout);
+        }
+    }, { passive: true });
+
+    // 觸控移動
+    item.addEventListener('touchmove', (e) => {
+        touchEndY = e.touches[0].clientY;
+        const touchDiff = Math.abs(touchEndY - touchStartY);
+        
+        // 如果垂直移動距離超過10px，認為是滾動
+        if (touchDiff > 10) {
+            isScrolling = true;
+        }
+    }, { passive: true });
+
+    // 觸控結束
     item.addEventListener('touchend', (e) => {
-        e.preventDefault();
-        handleItemClick();
+        touchEndTime = Date.now();
+        const touchDuration = touchEndTime - touchStartTime;
+        const touchDiff = Math.abs(touchEndY - touchStartY);
+        
+        // 如果觸控時間短於300ms且移動距離小於10px，認為是點擊
+        if (touchDuration < 300 && touchDiff < 10 && !isScrolling) {
+            e.preventDefault();
+            handleItemClick();
+        }
+        
+        // 延遲重置滾動狀態，防止快速連續觸控
+        scrollTimeout = setTimeout(() => {
+            isScrolling = false;
+        }, 100);
     });
+
+    // 保留滑鼠點擊事件
+    item.addEventListener('click', handleItemClick);
 });
 
 if (videoCloseBtn) {
@@ -414,17 +513,67 @@ socialLinks.forEach(link => {
 // 部落格文章點擊事件
 const blogCards = document.querySelectorAll('.blog-card');
 blogCards.forEach(card => {
+    let touchStartY = 0;
+    let touchEndY = 0;
+    let touchStartTime = 0;
+    let touchEndTime = 0;
+    let isScrolling = false;
+    let scrollTimeout;
+
     const handleBlogClick = () => {
+        // 如果是滾動狀態，不觸發點擊事件
+        if (isScrolling) {
+            return;
+        }
+        
         const title = card.querySelector('h3').textContent;
         console.log(`點擊了部落格文章: ${title}`);
         // 這裡可以導向詳細的部落格頁面
     };
 
-    card.addEventListener('click', handleBlogClick);
+    // 觸控開始
+    card.addEventListener('touchstart', (e) => {
+        touchStartY = e.touches[0].clientY;
+        touchStartTime = Date.now();
+        isScrolling = false;
+        
+        // 清除之前的滾動超時
+        if (scrollTimeout) {
+            clearTimeout(scrollTimeout);
+        }
+    }, { passive: true });
+
+    // 觸控移動
+    card.addEventListener('touchmove', (e) => {
+        touchEndY = e.touches[0].clientY;
+        const touchDiff = Math.abs(touchEndY - touchStartY);
+        
+        // 如果垂直移動距離超過10px，認為是滾動
+        if (touchDiff > 10) {
+            isScrolling = true;
+        }
+    }, { passive: true });
+
+    // 觸控結束
     card.addEventListener('touchend', (e) => {
-        e.preventDefault();
-        handleBlogClick();
+        touchEndTime = Date.now();
+        const touchDuration = touchEndTime - touchStartTime;
+        const touchDiff = Math.abs(touchEndY - touchStartY);
+        
+        // 如果觸控時間短於300ms且移動距離小於10px，認為是點擊
+        if (touchDuration < 300 && touchDiff < 10 && !isScrolling) {
+            e.preventDefault();
+            handleBlogClick();
+        }
+        
+        // 延遲重置滾動狀態，防止快速連續觸控
+        scrollTimeout = setTimeout(() => {
+            isScrolling = false;
+        }, 100);
     });
+
+    // 保留滑鼠點擊事件
+    card.addEventListener('click', handleBlogClick);
 });
 
 // 返回頂部按鈕

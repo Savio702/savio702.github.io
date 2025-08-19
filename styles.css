@@ -1030,6 +1030,20 @@ body {
         -ms-user-select: none;
         user-select: none;
     }
+
+    /* 改善觸控響應 */
+    .portfolio-item,
+    .blog-card,
+    .filter-btn {
+        touch-action: pan-y; /* 允許垂直滾動 */
+    }
+
+    /* 防止意外觸發 */
+    .portfolio-item:active,
+    .blog-card:active,
+    .filter-btn:active {
+        transform: none;
+    }
 }
 
 @media (max-width: 480px) {
@@ -1159,6 +1173,14 @@ body {
     .blog-card {
         cursor: pointer;
         -webkit-tap-highlight-color: transparent;
+        touch-action: pan-y; /* 允許垂直滾動 */
+    }
+
+    /* 防止意外觸發 */
+    .portfolio-item:active,
+    .blog-card:active,
+    .filter-btn:active {
+        transform: none;
     }
 }
 
