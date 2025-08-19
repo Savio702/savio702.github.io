@@ -226,6 +226,11 @@ contactForm.addEventListener('submit', (e) => {
             // 成功 → 顯示感謝卡片
             thankCard.style.display = 'block';
             contactForm.reset();
+            // 禁用表單所有欄位（不能再輸入或送出）
+            Array.from(contactForm.elements).forEach(el => el.disabled = true);
+            
+            // 可選：清空表單內容
+            contactForm.reset();
         } else {
             alert("發送失敗，請稍後再試。");
         }
@@ -239,6 +244,9 @@ contactForm.addEventListener('submit', (e) => {
         submitButton.textContent = originalText;
         submitButton.disabled = false;
     });
+
+    
+
 });
 
 
