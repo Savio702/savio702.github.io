@@ -116,32 +116,26 @@ if (aboutSection) {
 }
 
 // 聯絡表單處理
+// 聯絡表單處理 (Netlify 版本)
 const contactForm = document.querySelector('.contact-form form');
 if (contactForm) {
     contactForm.addEventListener('submit', (e) => {
-        e.preventDefault();
-        
-        // 獲取表單數據
-        const formData = new FormData(contactForm);
-        const name = contactForm.querySelector('input[type="text"]').value;
-        const email = contactForm.querySelector('input[type="email"]').value;
-        const subject = contactForm.querySelector('input[placeholder="主旨"]').value;
-        const message = contactForm.querySelector('textarea').value;
-        
-        // 簡單的表單驗證
+        // 驗證欄位
+        const name = contactForm.querySelector('input[name="name"]').value.trim();
+        const email = contactForm.querySelector('input[name="email"]').value.trim();
+        const message = contactForm.querySelector('textarea[name="message"]').value.trim();
+
         if (!name || !email || !message) {
+            e.preventDefault(); // 只在不符合時才阻止送出
             alert('請填寫所有必填欄位');
             return;
         }
-        
-        // 這裡可以添加實際的表單提交邏輯
-        // 例如發送到後端API或電子郵件服務
-        
-        // 顯示成功訊息
-        alert('感謝您的訊息！我們會盡快回覆您。');
-        contactForm.reset();
+
+        // 顯示送出提示（實際送出交給 Netlify）
+        alert('感謝您的訊息！表單已送出，我們會盡快回覆您。');
     });
 }
+
 
 // 圖片載入動畫
 const imagePlaceholders = document.querySelectorAll('.image-placeholder');

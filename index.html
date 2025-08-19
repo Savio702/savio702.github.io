@@ -471,21 +471,28 @@
                 </div>
                 <div class="contact-form">
                     <h3>發送訊息</h3>
-                    <form>
+                    <form name="contact" method="POST" data-netlify="true" netlify-honeypot="bot-field">
+                        <!-- 防機器人隱藏欄位 -->
+                        <input type="hidden" name="form-name" value="contact">
+                        <p hidden>
+                            <label>不要填這個：<input name="bot-field"></label>
+                        </p>
+                    
                         <div class="form-group">
-                            <input type="text" placeholder="您的姓名" required>
+                            <input type="text" name="name" placeholder="您的姓名" required>
                         </div>
                         <div class="form-group">
-                            <input type="email" placeholder="您的電子郵件" required>
+                            <input type="email" name="email" placeholder="您的電子郵件" required>
                         </div>
                         <div class="form-group">
-                            <input type="text" placeholder="主旨">
+                            <input type="text" name="subject" placeholder="主旨">
                         </div>
                         <div class="form-group">
-                            <textarea placeholder="您的訊息" rows="5" required></textarea>
+                            <textarea name="message" placeholder="您的訊息" rows="5" required></textarea>
                         </div>
                         <button type="submit" class="btn btn-primary">發送訊息</button>
                     </form>
+                    
                 </div>
             </div>
         </div>
