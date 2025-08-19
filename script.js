@@ -212,30 +212,35 @@ contactForm.addEventListener('submit', (e) => {
     submitButton.textContent = '發送中...';
     submitButton.disabled = true;
 
-    // 使用 fetch 將表單送到 Netlify
+    // 準備表單資料
     const formData = new FormData(contactForm);
+
+    // 用 fetch 傳給 Netlify
     fetch("/", {
         method: "POST",
-        body: formData
+        body: new URLSearchParams(formData).toString(),
+        headers: { "Content-Type": "application/x-www-form-urlencoded" }
     })
-    .then(() => {
-        // 顯示成功訊息
-        thankCard.classList.add('show');
-        contactForm.reset();
-
-        // 3秒後隱藏成功訊息並恢復按鈕
-        setTimeout(() => {
-            thankCard.classList.remove('show');
-            submitButton.textContent = originalText;
-            submitButton.disabled = false;
-        }, 3000);
+    .then((res) => {
+        if (res.ok) {
+            // 成功 → 顯示感謝卡片
+            thankCard.style.display = 'block';
+            contactForm.reset();
+        } else {
+            alert("發送失敗，請稍後再試。");
+        }
     })
-    .catch(() => {
-        alert("送出失敗，請稍後再試！");
+    .catch((err) => {
+        console.error(err);
+        alert("發送失敗，請檢查網路連線。");
+    })
+    .finally(() => {
+        // 恢復按鈕
         submitButton.textContent = originalText;
         submitButton.disabled = false;
     });
 });
+
 
 // 圖片載入動畫
 const imagePlaceholders = document.querySelectorAll('.image-placeholder');
