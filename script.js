@@ -1,643 +1,338 @@
-// 導航欄功能
-const hamburger = document.querySelector('.hamburger');
-const navMenu = document.querySelector('.nav-menu');
-
-hamburger.addEventListener('click', () => {
-    hamburger.classList.toggle('active');
-    navMenu.classList.toggle('active');
-    
-    // 防止背景滾動
-    if (navMenu.classList.contains('active')) {
-        document.body.style.overflow = 'hidden';
-    } else {
-        document.body.style.overflow = '';
-    }
-});
-
-// 關閉導航選單當點擊連結
-document.querySelectorAll('.nav-link').forEach(n => n.addEventListener('click', () => {
-    hamburger.classList.remove('active');
-    navMenu.classList.remove('active');
-    document.body.style.overflow = '';
-}));
-
-// 點擊導航選單外部關閉選單
-document.addEventListener('click', (e) => {
-    if (!hamburger.contains(e.target) && !navMenu.contains(e.target)) {
-        hamburger.classList.remove('active');
-        navMenu.classList.remove('active');
-        document.body.style.overflow = '';
-    }
-});
-
-// 平滑滾動到錨點
+// 平滑滾動
 document.querySelectorAll('a[href^="#"]').forEach(anchor => {
     anchor.addEventListener('click', function (e) {
         e.preventDefault();
-        const target = document.querySelector(this.getAttribute('href'));
-        if (target) {
-            // 關閉導航選單（如果開啟）
-            hamburger.classList.remove('active');
-            navMenu.classList.remove('active');
-            document.body.style.overflow = '';
-            
-            // 計算偏移量（考慮固定導航欄高度）
-            const navHeight = document.querySelector('.navbar').offsetHeight;
-            const targetPosition = target.offsetTop - navHeight;
-            
-            window.scrollTo({
-                top: targetPosition,
-                behavior: 'smooth'
-            });
-        }
+        document.querySelector(this.getAttribute('href')).scrollIntoView({
+            behavior: 'smooth'
+        });
     });
 });
 
 // 導航欄滾動效果
-window.addEventListener('scroll', () => {
-    const navbar = document.querySelector('.navbar');
-    if (window.scrollY > 100) {
-        navbar.style.background = 'rgba(255, 255, 255, 0.98)';
-        navbar.style.boxShadow = '0 2px 20px rgba(0, 0, 0, 0.1)';
+window.addEventListener('scroll', function() {
+    const header = document.querySelector('header');
+    if (window.scrollY > 50) {
+        header.style.boxShadow = '0 1px 3px rgba(0,0,0,0.1)';
     } else {
-        navbar.style.background = 'rgba(255, 255, 255, 0.95)';
-        navbar.style.boxShadow = 'none';
+        header.style.boxShadow = 'none';
     }
 });
 
-// 作品集篩選功能 + 隨機顯示四張
-const filterButtons = document.querySelectorAll('.filter-btn');
-const portfolioItems = document.querySelectorAll('.portfolio-item');
+//幻燈片
+let slideIndex = 0;
+const slides = document.getElementsByClassName("slide");
 
-const shuffleArray = (arr) => {
-    const a = [...arr];
-    for (let i = a.length - 1; i > 0; i -= 1) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [a[i], a[j]] = [a[j], a[i]];
-    }
-    return a;
-};
+function showSlides() {
+  for (let i = 0; i < slides.length; i++) {
+    slides[i].classList.remove("active");
+  }
 
-const showOnlyItems = (itemsToShow) => {
-    portfolioItems.forEach(item => {
-        if (itemsToShow.includes(item)) {
-            item.style.display = 'block';
-            item.style.animation = 'fadeInUp 0.6s ease';
-        } else {
-            item.style.display = 'none';
-        }
-    });
-};
+  slideIndex++;
+  if (slideIndex > slides.length) { slideIndex = 1; }
 
-const showRandomFourAll = () => {
-    const shuffled = shuffleArray(Array.from(portfolioItems));
-    const pick = shuffled.slice(0, 4);
-    showOnlyItems(pick);
-};
-
-// 改進的篩選功能，支援觸控並防止滾動時意外觸發
-filterButtons.forEach(button => {
-    let touchStartY = 0;
-    let touchEndY = 0;
-    let touchStartTime = 0;
-    let touchEndTime = 0;
-    let isScrolling = false;
-    let scrollTimeout;
-
-    // 支援點擊和觸控
-    const handleFilter = () => {
-        // 如果是滾動狀態，不觸發篩選
-        if (isScrolling) {
-            return;
-        }
-        
-        filterButtons.forEach(btn => btn.classList.remove('active'));
-        button.classList.add('active');
-
-        const filterValue = button.getAttribute('data-filter');
-        if (filterValue === 'all') {
-            showRandomFourAll();
-            return;
-        }
-
-        const matched = Array.from(portfolioItems).filter(
-            item => item.getAttribute('data-category') === filterValue
-        );
-        showOnlyItems(matched);
-    };
-
-    // 觸控開始
-    button.addEventListener('touchstart', (e) => {
-        touchStartY = e.touches[0].clientY;
-        touchStartTime = Date.now();
-        isScrolling = false;
-        
-        // 清除之前的滾動超時
-        if (scrollTimeout) {
-            clearTimeout(scrollTimeout);
-        }
-    }, { passive: true });
-
-    // 觸控移動
-    button.addEventListener('touchmove', (e) => {
-        touchEndY = e.touches[0].clientY;
-        const touchDiff = Math.abs(touchEndY - touchStartY);
-        
-        // 如果垂直移動距離超過10px，認為是滾動
-        if (touchDiff > 10) {
-            isScrolling = true;
-        }
-    }, { passive: true });
-
-    // 觸控結束
-    button.addEventListener('touchend', (e) => {
-        touchEndTime = Date.now();
-        const touchDuration = touchEndTime - touchStartTime;
-        const touchDiff = Math.abs(touchEndY - touchStartY);
-        
-        // 如果觸控時間短於300ms且移動距離小於10px，認為是點擊
-        if (touchDuration < 300 && touchDiff < 10 && !isScrolling) {
-            e.preventDefault();
-            handleFilter();
-        }
-        
-        // 延遲重置滾動狀態，防止快速連續觸控
-        scrollTimeout = setTimeout(() => {
-            isScrolling = false;
-        }, 100);
-    });
-
-    button.addEventListener('click', handleFilter);
-});
-
-// 技能條動畫
-const skillBars = document.querySelectorAll('.skill-progress');
-
-const animateSkillBars = () => {
-    skillBars.forEach(bar => {
-        const width = bar.style.width;
-        bar.style.width = '0%';
-        setTimeout(() => {
-            bar.style.width = width;
-        }, 500);
-    });
-};
-
-// 當關於我區塊進入視窗時觸發技能條動畫
-const aboutSection = document.querySelector('.about');
-const observer = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-        if (entry.isIntersecting) {
-            animateSkillBars();
-            observer.unobserve(entry.target);
-        }
-    });
-});
-
-if (aboutSection) {
-    observer.observe(aboutSection);
+  slides[slideIndex - 1].classList.add("active");
+  setTimeout(showSlides, 5000); // 每 5 秒切換
 }
+
+showSlides(); // 啟動幻燈片
+
+// EmailJS 初始化
+(function() {
+    emailjs.init("YOUR_PUBLIC_KEY"); // 需要替換為您的 EmailJS public key
+})();
 
 // 聯絡表單處理
-const contactForm = document.getElementById('contactForm');
-const thankCard = document.getElementById('thankCard');
-
-contactForm.addEventListener('submit', (e) => {
+document.getElementById('contact-form').addEventListener('submit', function(e) {
     e.preventDefault();
-
-    const submitButton = contactForm.querySelector('button[type="submit"]');
-    const originalText = submitButton.textContent;
-
-    // 顯示載入狀態
-    submitButton.textContent = '發送中...';
-    submitButton.disabled = true;
-
-    // 準備表單資料
-    const formData = new FormData(contactForm);
-
-    // 用 fetch 傳給 Netlify
-    fetch("/", {
-        method: "POST",
-        body: new URLSearchParams(formData).toString(),
-        headers: { "Content-Type": "application/x-www-form-urlencoded" }
-    })
-    .then((res) => {
-        if (res.ok) {
-            // 成功 → 顯示感謝卡片
-            thankCard.style.display = 'block';
-            contactForm.reset();
-            // 禁用表單所有欄位（不能再輸入或送出）
-            Array.from(contactForm.elements).forEach(el => el.disabled = true);
-            
-            // 可選：清空表單內容
-            contactForm.reset();
-        } else {
-            alert("發送失敗，請稍後再試。");
-        }
-    })
-    .catch((err) => {
-        console.error(err);
-        alert("發送失敗，請檢查網路連線。");
-    })
-    .finally(() => {
-        // 恢復按鈕
-        submitButton.textContent = originalText;
-        submitButton.disabled = false;
-    });
-
     
+    // 更改按鈕狀態
+    const submitBtn = document.getElementById('submit-btn');
+    const originalText = submitBtn.textContent;
+    submitBtn.textContent = '發送中...';
+    submitBtn.disabled = true;
 
+    // 準備發送的數據
+    const templateParams = {
+        to_email: 'changbob2003702@gmail.com',
+        from_name: this.user_name.value,
+        from_email: this.user_email.value,
+        phone: this.user_phone.value,
+        message: this.message.value
+    };
+
+    // 發送郵件
+    emailjs.send('default_service', 'template_id', templateParams) // 需要替換為您的 service ID 和 template ID
+        .then(function(response) {
+            submitBtn.textContent = '訊息已送出！';
+            document.getElementById('contact-form').reset();
+            
+            // 3秒後恢復按鈕原始狀態
+            setTimeout(() => {
+                submitBtn.textContent = originalText;
+                submitBtn.disabled = false;
+            }, 3000);
+        }, function(error) {
+            submitBtn.textContent = '發送失敗，請稍後再試';
+            console.error('發送失敗:', error);
+            
+            // 3秒後恢復按鈕原始狀態
+            setTimeout(() => {
+                submitBtn.textContent = originalText;
+                submitBtn.disabled = false;
+            }, 3000);
+        });
 });
 
-
-// 圖片載入動畫
-const imagePlaceholders = document.querySelectorAll('.image-placeholder');
-
-const animateImages = () => {
-    imagePlaceholders.forEach((placeholder, index) => {
+// 作品集項目點擊效果
+document.querySelectorAll('.portfolio-item').forEach(item => {
+    item.addEventListener('click', function() {
+        // 添加點擊動畫效果
+        this.style.transform = 'scale(0.95)';
         setTimeout(() => {
-            placeholder.style.opacity = '0.8';
-            placeholder.style.transform = 'scale(1.02)';
-        }, index * 200);
+            this.style.transform = 'translateY(-10px) scale(1.02)';
+        }, 200);
+        
+        // 這裡可以添加點擊作品後的行為
+        console.log('點擊了作品:', this.querySelector('h3').textContent);
+    });
+});
+
+// 滾動動畫效果
+const animateOnScroll = () => {
+    const elements = document.querySelectorAll('.portfolio-item, .service-item');
+    
+    elements.forEach(element => {
+        const elementTop = element.getBoundingClientRect().top;
+        const elementBottom = element.getBoundingClientRect().bottom;
+        
+        if (elementTop < window.innerHeight && elementBottom > 0) {
+            element.style.opacity = '1';
+            element.style.transform = 'translateY(0)';
+        }
     });
 };
 
-// 頁面載入完成後觸發動畫
-window.addEventListener('load', () => {
-    animateImages();
-});
-
-// 滾動動畫
-const scrollElements = document.querySelectorAll('.portfolio-item, .blog-card, .about-content, .contact-content');
-
-const elementInView = (el, dividend = 1) => {
-    const elementTop = el.getBoundingClientRect().top;
-    return (
-        elementTop <=
-        (window.innerHeight || document.documentElement.clientHeight) / dividend
-    );
-};
-
-const displayScrollElement = (element) => {
-    element.style.opacity = '1';
-    element.style.transform = 'translateY(0)';
-};
-
-const hideScrollElement = (element) => {
+// 初始化元素樣式
+document.querySelectorAll('.portfolio-item, .service-item').forEach(element => {
     element.style.opacity = '0';
     element.style.transform = 'translateY(20px)';
-};
-
-const handleScrollAnimation = () => {
-    scrollElements.forEach((el) => {
-        if (elementInView(el, 1)) {
-            displayScrollElement(el);
-        } else {
-            hideScrollElement(el);
-        }
-    });
-};
-
-// 初始化滾動動畫
-scrollElements.forEach(el => {
-    el.style.opacity = '0';
-    el.style.transform = 'translateY(20px)';
-    el.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+    element.style.transition = 'all 0.4s ease-out';
 });
 
-window.addEventListener('scroll', handleScrollAnimation);
-window.addEventListener('load', handleScrollAnimation);
+// 監聽滾動事件
+window.addEventListener('scroll', animateOnScroll);
+window.addEventListener('load', animateOnScroll);
 
-// 自動設定縮圖（YouTube）
-const setAutoThumbnails = () => {
-    const items = document.querySelectorAll('.portfolio-item[data-video-url]');
-    items.forEach(item => {
-        const url = item.getAttribute('data-video-url');
-        if (!url) return;
-        if (!/youtu\.be|youtube\.com/.test(url)) return; // 目前僅針對 YouTube 自動縮圖
+// 等待頁面完全載入
+window.onload = function() {
+    // 幻燈片控制
+    const slides = document.querySelectorAll('.slide');
+    const dots = document.querySelectorAll('.dot');
+    const prevBtn = document.querySelector('.prev-slide');
+    const nextBtn = document.querySelector('.next-slide');
+    let currentSlide = 0;
+    let slideInterval;
 
-        const id = extractYouTubeId(url);
-        if (!id) return;
-        const thumbUrl = `https://img.youtube.com/vi/${id}/hqdefault.jpg`;
+    console.log('幻燈片數量:', slides.length); // 調試用
 
-        const container = item.querySelector('.portfolio-image');
-        if (!container) return;
-        const img = document.createElement('img');
-        img.src = thumbUrl;
-        const title = item.querySelector('.portfolio-overlay h3');
-        img.alt = title ? title.textContent : '影片縮圖';
-        img.loading = 'lazy';
-
-        // 置換原有內容
-        container.innerHTML = '';
-        container.appendChild(img);
-    });
-};
-
-window.addEventListener('load', () => {
-    setAutoThumbnails();
-    showRandomFourAll(); // 預設：全部（all）顯示隨機四張
-});
-
-// 作品集項目點擊播放影片（燈箱）
-const lightbox = document.getElementById('video-lightbox');
-const videoWrapper = document.getElementById('video-wrapper');
-const videoCloseBtn = document.querySelector('.video-close');
-
-const extractYouTubeId = (url) => {
-    // 支援 youtu.be, watch?v=, shorts, embed 形式
-    const patterns = [
-        /(?:v=)([\w-]{6,})/i,                 // watch?v=
-        /youtu\.be\/([\w-]{6,})/i,           // youtu.be/
-        /youtube\.com\/shorts\/([\w-]{6,})/i,// shorts/
-        /youtube\.com\/embed\/([\w-]{6,})/i  // embed/
-    ];
-    for (const p of patterns) {
-        const m = url.match(p);
-        if (m && m[1]) return m[1];
-    }
-    return '';
-};
-
-const openLightboxWithUrl = (url) => {
-    if (!url) return;
-    let embed;
-    if (/youtu\.be|youtube\.com/.test(url)) {
-        const videoId = extractYouTubeId(url);
-        embed = `<iframe src="https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>`;
-    } else if (/vimeo\.com/.test(url)) {
-        const idMatch = url.match(/vimeo\.com\/(\d+)/);
-        const id = idMatch ? idMatch[1] : '';
-        embed = `<iframe src="https://player.vimeo.com/video/${id}?autoplay=1" frameborder="0" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>`;
-    } else {
-        embed = `<video src="${url}" controls autoplay playsinline></video>`;
-    }
-    videoWrapper.innerHTML = embed;
-    lightbox.classList.add('active');
-    lightbox.setAttribute('aria-hidden', 'false');
-    document.body.style.overflow = 'hidden';
-};
-
-const closeLightbox = () => {
-    lightbox.classList.remove('active');
-    lightbox.setAttribute('aria-hidden', 'true');
-    videoWrapper.innerHTML = '';
-    document.body.style.overflow = '';
-};
-
-// 改進的作品集項目點擊處理，支援觸控並防止滾動時意外觸發
-portfolioItems.forEach(item => {
-    let touchStartY = 0;
-    let touchEndY = 0;
-    let touchStartTime = 0;
-    let touchEndTime = 0;
-    let isScrolling = false;
-    let scrollTimeout;
-
-    const handleItemClick = () => {
-        // 如果是滾動狀態，不觸發影片播放
-        if (isScrolling) {
-            return;
-        }
+    // 顯示指定幻燈片
+    function showSlide(index) {
+        console.log('切換到幻燈片:', index); // 調試用
         
-        const url = item.getAttribute('data-video-url');
-        if (url) {
-            openLightboxWithUrl(url);
-        }
-    };
-
-    // 觸控開始
-    item.addEventListener('touchstart', (e) => {
-        touchStartY = e.touches[0].clientY;
-        touchStartTime = Date.now();
-        isScrolling = false;
-        
-        // 清除之前的滾動超時
-        if (scrollTimeout) {
-            clearTimeout(scrollTimeout);
-        }
-    }, { passive: true });
-
-    // 觸控移動
-    item.addEventListener('touchmove', (e) => {
-        touchEndY = e.touches[0].clientY;
-        const touchDiff = Math.abs(touchEndY - touchStartY);
-        
-        // 如果垂直移動距離超過10px，認為是滾動
-        if (touchDiff > 10) {
-            isScrolling = true;
-        }
-    }, { passive: true });
-
-    // 觸控結束
-    item.addEventListener('touchend', (e) => {
-        touchEndTime = Date.now();
-        const touchDuration = touchEndTime - touchStartTime;
-        const touchDiff = Math.abs(touchEndY - touchStartY);
-        
-        // 如果觸控時間短於300ms且移動距離小於10px，認為是點擊
-        if (touchDuration < 300 && touchDiff < 10 && !isScrolling) {
-            e.preventDefault();
-            handleItemClick();
-        }
-        
-        // 延遲重置滾動狀態，防止快速連續觸控
-        scrollTimeout = setTimeout(() => {
-            isScrolling = false;
-        }, 100);
-    });
-
-    // 保留滑鼠點擊事件
-    item.addEventListener('click', handleItemClick);
-});
-
-if (videoCloseBtn) {
-    videoCloseBtn.addEventListener('click', closeLightbox);
-    videoCloseBtn.addEventListener('touchend', (e) => {
-        e.preventDefault();
-        closeLightbox();
-    });
-}
-
-if (lightbox) {
-    lightbox.addEventListener('click', (e) => {
-        if (e.target === lightbox) closeLightbox();
-    });
-    
-    // 支援 ESC 鍵關閉燈箱
-    document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape' && lightbox.classList.contains('active')) {
-            closeLightbox();
-        }
-    });
-}
-
-// 社交媒體連結處理
-const socialLinks = document.querySelectorAll('.social-link');
-
-socialLinks.forEach(link => {
-    const handleSocialClick = (e) => {
-        e.preventDefault(); // 防止原本跳轉
-        const url = link.href; // 直接使用 HTML href
-        window.open(url, '_blank'); // 新視窗打開
-    };
-
-    link.addEventListener('click', handleSocialClick);
-    link.addEventListener('touchend', (e) => {
-        e.preventDefault();
-        handleSocialClick(e);
-    });
-});
-
-// 部落格文章點擊事件
-const blogCards = document.querySelectorAll('.blog-card');
-blogCards.forEach(card => {
-    let touchStartY = 0;
-    let touchEndY = 0;
-    let touchStartTime = 0;
-    let touchEndTime = 0;
-    let isScrolling = false;
-    let scrollTimeout;
-
-    const handleBlogClick = () => {
-        // 如果是滾動狀態，不觸發點擊事件
-        if (isScrolling) {
-            return;
-        }
-        
-        const title = card.querySelector('h3').textContent;
-        console.log(`點擊了部落格文章: ${title}`);
-        // 這裡可以導向詳細的部落格頁面
-    };
-
-    // 觸控開始
-    card.addEventListener('touchstart', (e) => {
-        touchStartY = e.touches[0].clientY;
-        touchStartTime = Date.now();
-        isScrolling = false;
-        
-        // 清除之前的滾動超時
-        if (scrollTimeout) {
-            clearTimeout(scrollTimeout);
-        }
-    }, { passive: true });
-
-    // 觸控移動
-    card.addEventListener('touchmove', (e) => {
-        touchEndY = e.touches[0].clientY;
-        const touchDiff = Math.abs(touchEndY - touchStartY);
-        
-        // 如果垂直移動距離超過10px，認為是滾動
-        if (touchDiff > 10) {
-            isScrolling = true;
-        }
-    }, { passive: true });
-
-    // 觸控結束
-    card.addEventListener('touchend', (e) => {
-        touchEndTime = Date.now();
-        const touchDuration = touchEndTime - touchStartTime;
-        const touchDiff = Math.abs(touchEndY - touchStartY);
-        
-        // 如果觸控時間短於300ms且移動距離小於10px，認為是點擊
-        if (touchDuration < 300 && touchDiff < 10 && !isScrolling) {
-            e.preventDefault();
-            handleBlogClick();
-        }
-        
-        // 延遲重置滾動狀態，防止快速連續觸控
-        scrollTimeout = setTimeout(() => {
-            isScrolling = false;
-        }, 100);
-    });
-
-    // 保留滑鼠點擊事件
-    card.addEventListener('click', handleBlogClick);
-});
-
-// 返回頂部按鈕
-const createBackToTopButton = () => {
-    const backToTop = document.createElement('button');
-    backToTop.innerHTML = '<i class="fas fa-arrow-up"></i>';
-    backToTop.className = 'back-to-top';
-    backToTop.setAttribute('aria-label', '返回頂部');
-    backToTop.style.cssText = `
-        position: fixed;
-        bottom: 20px;
-        right: 20px;
-        width: 50px;
-        height: 50px;
-        background: #3498db;
-        color: white;
-        border: none;
-        border-radius: 50%;
-        cursor: pointer;
-        opacity: 0;
-        visibility: hidden;
-        transition: all 0.3s ease;
-        z-index: 1000;
-        font-size: 1.2rem;
-        box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3);
-    `;
-    
-    document.body.appendChild(backToTop);
-    
-    // 顯示/隱藏按鈕
-    window.addEventListener('scroll', () => {
-        if (window.scrollY > 300) {
-            backToTop.style.opacity = '1';
-            backToTop.style.visibility = 'visible';
-        } else {
-            backToTop.style.opacity = '0';
-            backToTop.style.visibility = 'hidden';
-        }
-    });
-    
-    // 點擊返回頂部
-    const scrollToTop = () => {
-        window.scrollTo({
-            top: 0,
-            behavior: 'smooth'
+        // 移除所有幻燈片的active類
+        slides.forEach(slide => {
+            slide.classList.remove('active');
+            slide.style.opacity = '0';
         });
-    };
-
-    backToTop.addEventListener('click', scrollToTop);
-    backToTop.addEventListener('touchend', (e) => {
-        e.preventDefault();
-        scrollToTop();
-    });
-    
-    // 懸停效果
-    backToTop.addEventListener('mouseenter', () => {
-        backToTop.style.background = '#2980b9';
-        backToTop.style.transform = 'translateY(-3px)';
-    });
-    
-    backToTop.addEventListener('mouseleave', () => {
-        backToTop.style.background = '#3498db';
-        backToTop.style.transform = 'translateY(0)';
-    });
-};
-
-// 初始化返回頂部按鈕
-createBackToTopButton();
-
-// 載入動畫
-window.addEventListener('load', () => {
-    document.body.style.opacity = '1';
-});
-
-// 頁面載入時的淡入效果
-document.body.style.opacity = '0';
-document.body.style.transition = 'opacity 0.5s ease';
-
-// 防止雙擊縮放（iOS）
-let lastTouchEnd = 0;
-document.addEventListener('touchend', function (event) {
-    const now = (new Date()).getTime();
-    if (now - lastTouchEnd <= 300) {
-        event.preventDefault();
+        dots.forEach(dot => dot.classList.remove('active'));
+        
+        // 添加active類到當前幻燈片
+        slides[index].classList.add('active');
+        slides[index].style.opacity = '1';
+        dots[index].classList.add('active');
+        currentSlide = index;
     }
-    lastTouchEnd = now;
-}, false);
 
+    // 下一張幻燈片
+    function nextSlide() {
+        currentSlide = (currentSlide + 1) % slides.length;
+        showSlide(currentSlide);
+    }
+
+    // 上一張幻燈片
+    function prevSlide() {
+        currentSlide = (currentSlide - 1 + slides.length) % slides.length;
+        showSlide(currentSlide);
+    }
+
+    // 初始化
+    function initSlideshow() {
+        console.log('初始化幻燈片'); // 調試用
+        
+        // 設置初始狀態
+        showSlide(0);
+        
+        // 設置自動播放
+        slideInterval = setInterval(nextSlide, 5000);
+        
+        // 添加事件監聽器
+        if (prevBtn && nextBtn) {
+            prevBtn.addEventListener('click', () => {
+                clearInterval(slideInterval);
+                prevSlide();
+                slideInterval = setInterval(nextSlide, 5000);
+            });
+            
+            nextBtn.addEventListener('click', () => {
+                clearInterval(slideInterval);
+                nextSlide();
+                slideInterval = setInterval(nextSlide, 5000);
+            });
+        }
+
+        // 點擊指示點切換幻燈片
+        dots.forEach((dot, index) => {
+            dot.addEventListener('click', () => {
+                clearInterval(slideInterval);
+                showSlide(index);
+                slideInterval = setInterval(nextSlide, 5000);
+            });
+        });
+
+        // 滑鼠懸停時暫停自動播放
+        const slideshow = document.querySelector('.slideshow');
+        if (slideshow) {
+            slideshow.addEventListener('mouseenter', () => {
+                console.log('暫停自動播放'); // 調試用
+                clearInterval(slideInterval);
+            });
+            slideshow.addEventListener('mouseleave', () => {
+                console.log('恢復自動播放'); // 調試用
+                slideInterval = setInterval(nextSlide, 5000);
+            });
+        }
+    }
+
+    // 啟動幻燈片
+    if (slides.length > 0) {
+        initSlideshow();
+    } else {
+        console.error('未找到幻燈片元素'); // 調試用
+    }
+
+    // 影片處理
+    document.addEventListener('DOMContentLoaded', function() {
+        const videoThumbnails = document.querySelectorAll('.video-thumbnail');
+        
+        videoThumbnails.forEach(thumbnail => {
+            // 移除原有的點擊事件處理
+            thumbnail.addEventListener('click', function(e) {
+                // 讓連結正常運作
+                return true;
+            });
+        });
+    });
+
+    // 影片播放功能
+    const videoModal = document.getElementById('video-modal');
+    const videoFrame = document.getElementById('video-frame');
+    const closeModal = document.querySelector('.close-modal');
+
+    if (videoModal && videoFrame && closeModal) {
+        closeModal.addEventListener('click', function() {
+            videoModal.style.display = 'none';
+            videoFrame.src = '';
+            document.body.style.overflow = 'auto';
+        });
+
+        window.addEventListener('click', function(event) {
+            if (event.target === videoModal) {
+                videoModal.style.display = 'none';
+                videoFrame.src = '';
+                document.body.style.overflow = 'auto';
+            }
+        });
+    }
+
+    // 平滑滾動
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function(e) {
+            e.preventDefault();
+            const target = document.querySelector(this.getAttribute('href'));
+            if (target) {
+                target.scrollIntoView({
+                    behavior: 'smooth'
+                });
+            }
+        });
+    });
+
+    // 手機版導覽列功能
+    const menuToggle = document.querySelector('.menu-toggle');
+    const navMenu = document.querySelector('nav ul');
+    const menuSpans = document.querySelectorAll('.menu-toggle span');
+    let isMenuOpen = false;
+
+    // 確保元素存在後才執行
+    if (menuToggle && navMenu && menuSpans.length > 0) {
+        // 切換選單狀態的函數
+        function toggleMenu() {
+            isMenuOpen = !isMenuOpen;
+            navMenu.classList.toggle('active');
+            
+            // 漢堡選單動畫
+            menuSpans.forEach((span, index) => {
+                if (isMenuOpen) {
+                    if (index === 0) {
+                        span.style.transform = 'rotate(45deg) translate(5px, 5px)';
+                    } else if (index === 1) {
+                        span.style.opacity = '0';
+                    } else if (index === 2) {
+                        span.style.transform = 'rotate(-45deg) translate(7px, -6px)';
+                    }
+                } else {
+                    span.style.transform = '';
+                    span.style.opacity = '';
+                }
+            });
+        }
+
+        // 關閉選單的函數
+        function closeMenu() {
+            if (isMenuOpen) {
+                isMenuOpen = false;
+                navMenu.classList.remove('active');
+                menuSpans.forEach(span => {
+                    span.style.transform = '';
+                    span.style.opacity = '';
+                });
+            }
+        }
+
+        // 點擊漢堡選單按鈕
+        menuToggle.addEventListener('click', function(e) {
+            e.stopPropagation();
+            toggleMenu();
+        });
+
+        // 點擊選單項目後關閉選單
+        const navLinks = document.querySelectorAll('nav ul li a');
+        navLinks.forEach(link => {
+            link.addEventListener('click', function() {
+                closeMenu();
+            });
+        });
+
+        // 點擊頁面其他區域時關閉選單
+        document.addEventListener('click', function(event) {
+            if (!event.target.closest('nav')) {
+                closeMenu();
+            }
+        });
+
+        // 防止選單內的點擊事件冒泡
+        navMenu.addEventListener('click', function(e) {
+            e.stopPropagation();
+        });
+    }
+}; 
