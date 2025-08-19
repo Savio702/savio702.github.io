@@ -215,53 +215,24 @@ contactForm.addEventListener('submit', async (e) => {
     try {
         // 獲取表單數據
         const formData = new FormData(contactForm);
-        const formObject = Object.fromEntries(formData);
         
         // 驗證電子郵件格式
+        const email = formData.get('email');
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!emailRegex.test(formObject.email)) {
+        if (!emailRegex.test(email)) {
             throw new Error('請輸入有效的電子郵件地址');
         }
         
-        // 同時發送到 Netlify 和原本的後端
-        const promises = [];
+        // 提交到 Netlify（會自動發送郵件通知）
+        const response = await fetch('/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: new URLSearchParams(formData).toString()
+        });
         
-        // 1. 發送到 Netlify（主要方式）
-        promises.push(
-            fetch('/', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                },
-                body: new URLSearchParams(formData).toString()
-            })
-        );
-        
-        // 2. 發送到原本的後端（備用方式）
-        promises.push(
-            fetch('/submit-form', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(formObject)
-            }).catch(error => {
-                console.log('原本後端發送失敗，但 Netlify 會處理：', error);
-                // 不拋出錯誤，因為 Netlify 是主要方式
-                return { ok: true, status: 200 };
-            })
-        );
-        
-        // 等待所有請求完成
-        const results = await Promise.allSettled(promises);
-        
-        // 檢查是否有成功的請求
-        const hasSuccess = results.some(result => 
-            result.status === 'fulfilled' && 
-            (result.value.ok || result.value.status === 200)
-        );
-        
-        if (hasSuccess) {
+        if (response.ok) {
             // 顯示成功訊息
             thankCard.classList.add('show');
             contactForm.reset();
@@ -271,7 +242,7 @@ contactForm.addEventListener('submit', async (e) => {
                 thankCard.classList.remove('show');
             }, 3000);
             
-            console.log('表單提交成功！');
+            console.log('表單提交成功！Netlify 會自動發送郵件通知');
         } else {
             throw new Error('表單提交失敗，請稍後再試');
         }

@@ -645,6 +645,10 @@ body {
     color: #2c3e50;
 }
 
+.contact-form {
+    position: relative; /* 為小卡片定位 */
+}
+
 .form-group {
     margin-bottom: 1.5rem;
 }
