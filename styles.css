@@ -684,6 +684,32 @@ body {
 } 
  */
 
+ #thankCard {
+    display: none; /* 預設隱藏 */
+    position: absolute; /* 相對於表單 */
+    top: 50%; 
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: #d4edda;
+    color: #155724;
+    padding: 15px 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    font-weight: 500;
+    z-index: 10;
+    text-align: center;
+}
+
+#thankCard.show {
+    animation: fadeIn 0.5s forwards;
+}
+
+@keyframes fadeIn {
+    from {opacity: 0; transform: translate(-50%, -60%);}
+    to {opacity: 1; transform: translate(-50%, -50%);}
+}
+
+
 /* 響應式設計 */
 @media (max-width: 768px) {
     .hamburger {

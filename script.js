@@ -152,6 +152,8 @@ form.addEventListener("submit", function(event) {
     });
 });
 
+// 小卡片動畫
+thankCard.classList.add("show");
 
 // 圖片載入動畫
 const imagePlaceholders = document.querySelectorAll('.image-placeholder');
