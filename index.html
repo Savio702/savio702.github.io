@@ -471,8 +471,7 @@
                 </div>
                 <div class="contact-form">
                     <h3>發送訊息</h3>
-                    <form name="contact" method="POST" data-netlify="true" netlify-honeypot="bot-field">
-                        <!-- 防機器人隱藏欄位 -->
+                    <form id="contactForm" name="contact" method="POST" data-netlify="true" netlify-honeypot="bot-field">
                         <input type="hidden" name="form-name" value="contact">
                         <p hidden>
                             <label>不要填這個：<input name="bot-field"></label>
@@ -492,6 +491,11 @@
                         </div>
                         <button type="submit" class="btn btn-primary">發送訊息</button>
                     </form>
+                    
+                    <!-- 小卡片 -->
+                    <div id="thankCard" style="display:none; position: fixed; top: 20px; right: 20px; background: #d4edda; color: #155724; padding: 15px 20px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.2);">
+                        感謝您的訊息，我們已收到！
+                    </div>
                     
                 </div>
             </div>

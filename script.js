@@ -117,24 +117,40 @@ if (aboutSection) {
 
 // 聯絡表單處理
 // 聯絡表單處理 (Netlify 版本)
-const contactForm = document.querySelector('.contact-form form');
-if (contactForm) {
-    contactForm.addEventListener('submit', (e) => {
-        // 驗證欄位
-        const name = contactForm.querySelector('input[name="name"]').value.trim();
-        const email = contactForm.querySelector('input[name="email"]').value.trim();
-        const message = contactForm.querySelector('textarea[name="message"]').value.trim();
+const form = document.getElementById("contactForm");
+const thankCard = document.getElementById("thankCard");
 
-        if (!name || !email || !message) {
-            e.preventDefault(); // 只在不符合時才阻止送出
-            alert('請填寫所有必填欄位');
-            return;
-        }
+form.addEventListener("submit", function(event) {
+    event.preventDefault(); // 阻止預設刷新
 
-        // 顯示送出提示（實際送出交給 Netlify）
-        alert('感謝您的訊息！表單已送出，我們會盡快回覆您。');
+    // 基本欄位驗證
+    const name = form.querySelector('input[name="name"]').value.trim();
+    const email = form.querySelector('input[name="email"]').value.trim();
+    const message = form.querySelector('textarea[name="message"]').value.trim();
+
+    if (!name || !email || !message) {
+        alert('請填寫所有必填欄位');
+        return;
+    }
+
+    // 使用 FormData 提交到 Netlify
+    const formData = new FormData(form);
+
+    fetch("/", {
+        method: "POST",
+        body: formData
+    })
+    .then(() => {
+        thankCard.style.display = "block"; // 顯示小卡片
+        form.reset(); // 清空表單
+        setTimeout(() => {
+            thankCard.style.display = "none"; // 5秒後自動消失
+        }, 5000);
+    })
+    .catch((error) => {
+        alert("送出失敗，請稍後再試：" + error);
     });
-}
+});
 
 
 // 圖片載入動畫
