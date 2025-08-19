@@ -472,6 +472,7 @@
                 <div class="contact-form">
                     <h3>發送訊息</h3>
                     <form id="contactForm" name="contact" method="POST" data-netlify="true" netlify-honeypot="bot-field">
+                        <!-- Netlify 必要的隱藏欄位 -->
                         <input type="hidden" name="form-name" value="contact">
                         <p hidden>
                             <label>不要填這個：<input name="bot-field"></label>
@@ -490,9 +491,11 @@
                             <textarea name="message" placeholder="您的訊息" rows="5" required></textarea>
                         </div>
                         <button type="submit" class="btn btn-primary">發送訊息</button>
+                    
                         <!-- 小卡片 -->
                         <div id="thankCard">感謝您的訊息，我們已收到！</div>
                     </form>
+                    
                 </div>
             </div>
         </div>

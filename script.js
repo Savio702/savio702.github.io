@@ -202,66 +202,40 @@ if (aboutSection) {
 const contactForm = document.getElementById('contactForm');
 const thankCard = document.getElementById('thankCard');
 
-contactForm.addEventListener('submit', async (e) => {
+contactForm.addEventListener('submit', (e) => {
     e.preventDefault();
-    
+
     const submitButton = contactForm.querySelector('button[type="submit"]');
     const originalText = submitButton.textContent;
-    
+
     // 顯示載入狀態
     submitButton.textContent = '發送中...';
     submitButton.disabled = true;
-    
-    try {
-        // 獲取表單數據
-        const formData = new FormData(contactForm);
-        
-        // 驗證電子郵件格式
-        const email = formData.get('email');
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!emailRegex.test(email)) {
-            throw new Error('請輸入有效的電子郵件地址');
-        }
-        
-        // 提交到 Netlify（會自動發送郵件通知）
-        const response = await fetch('/', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded',
-            },
-            body: new URLSearchParams(formData).toString()
-        });
-        
-        if (response.ok) {
-            // 顯示成功訊息
-            thankCard.classList.add('show');
-            contactForm.reset();
-            
-            // 3秒後隱藏成功訊息
-            setTimeout(() => {
-                thankCard.classList.remove('show');
-            }, 3000);
-            
-            console.log('表單提交成功！Netlify 會自動發送郵件通知');
-        } else {
-            throw new Error('表單提交失敗，請稍後再試');
-        }
-        
-    } catch (error) {
-        console.error('表單提交錯誤：', error);
-        
-        // 顯示錯誤訊息
-        alert(error.message || '發送失敗，請稍後再試');
-        
-    } finally {
-        // 恢復按鈕狀態
+
+    // 使用 fetch 將表單送到 Netlify
+    const formData = new FormData(contactForm);
+    fetch("/", {
+        method: "POST",
+        body: formData
+    })
+    .then(() => {
+        // 顯示成功訊息
+        thankCard.classList.add('show');
+        contactForm.reset();
+
+        // 3秒後隱藏成功訊息並恢復按鈕
+        setTimeout(() => {
+            thankCard.classList.remove('show');
+            submitButton.textContent = originalText;
+            submitButton.disabled = false;
+        }, 3000);
+    })
+    .catch(() => {
+        alert("送出失敗，請稍後再試！");
         submitButton.textContent = originalText;
         submitButton.disabled = false;
-    }
+    });
 });
-
-// 小卡片動畫
-thankCard.classList.add("show");
 
 // 圖片載入動畫
 const imagePlaceholders = document.querySelectorAll('.image-placeholder');
