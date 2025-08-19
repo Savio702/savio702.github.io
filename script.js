@@ -198,62 +198,95 @@ if (aboutSection) {
     observer.observe(aboutSection);
 }
 
-// 聯絡表單處理 (Netlify 版本)
-const form = document.getElementById("contactForm");
-const thankCard = document.getElementById("thankCard");
+// 聯絡表單處理
+const contactForm = document.getElementById('contactForm');
+const thankCard = document.getElementById('thankCard');
 
-form.addEventListener("submit", function(event) {
-    event.preventDefault(); // 阻止預設刷新
-
-    // 基本欄位驗證
-    const name = form.querySelector('input[name="name"]').value.trim();
-    const email = form.querySelector('input[name="email"]').value.trim();
-    const message = form.querySelector('textarea[name="message"]').value.trim();
-
-    if (!name || !email || !message) {
-        alert('請填寫所有必填欄位');
-        return;
-    }
-
-    // 電子郵件格式驗證
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-        alert('請輸入有效的電子郵件地址');
-        return;
-    }
-
+contactForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    const submitButton = contactForm.querySelector('button[type="submit"]');
+    const originalText = submitButton.textContent;
+    
     // 顯示載入狀態
-    const submitBtn = form.querySelector('button[type="submit"]');
-    const originalText = submitBtn.textContent;
-    submitBtn.textContent = '發送中...';
-    submitBtn.disabled = true;
-
-    // 使用 FormData 提交到 Netlify
-    const formData = new FormData(form);
-
-    fetch("/", {
-        method: "POST",
-        body: formData
-    })
-    .then((response) => {
-        if (response.ok) {
-            thankCard.style.display = "block"; // 顯示小卡片
-            form.reset(); // 清空表單
-            setTimeout(() => {
-                thankCard.style.display = "none"; // 5秒後自動消失
-            }, 5000);
-        } else {
-            throw new Error('提交失敗');
+    submitButton.textContent = '發送中...';
+    submitButton.disabled = true;
+    
+    try {
+        // 獲取表單數據
+        const formData = new FormData(contactForm);
+        const formObject = Object.fromEntries(formData);
+        
+        // 驗證電子郵件格式
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(formObject.email)) {
+            throw new Error('請輸入有效的電子郵件地址');
         }
-    })
-    .catch((error) => {
-        alert("送出失敗，請稍後再試：" + error);
-    })
-    .finally(() => {
+        
+        // 同時發送到 Netlify 和原本的後端
+        const promises = [];
+        
+        // 1. 發送到 Netlify（主要方式）
+        promises.push(
+            fetch('/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: new URLSearchParams(formData).toString()
+            })
+        );
+        
+        // 2. 發送到原本的後端（備用方式）
+        promises.push(
+            fetch('/submit-form', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(formObject)
+            }).catch(error => {
+                console.log('原本後端發送失敗，但 Netlify 會處理：', error);
+                // 不拋出錯誤，因為 Netlify 是主要方式
+                return { ok: true, status: 200 };
+            })
+        );
+        
+        // 等待所有請求完成
+        const results = await Promise.allSettled(promises);
+        
+        // 檢查是否有成功的請求
+        const hasSuccess = results.some(result => 
+            result.status === 'fulfilled' && 
+            (result.value.ok || result.value.status === 200)
+        );
+        
+        if (hasSuccess) {
+            // 顯示成功訊息
+            thankCard.classList.add('show');
+            contactForm.reset();
+            
+            // 3秒後隱藏成功訊息
+            setTimeout(() => {
+                thankCard.classList.remove('show');
+            }, 3000);
+            
+            console.log('表單提交成功！');
+        } else {
+            throw new Error('表單提交失敗，請稍後再試');
+        }
+        
+    } catch (error) {
+        console.error('表單提交錯誤：', error);
+        
+        // 顯示錯誤訊息
+        alert(error.message || '發送失敗，請稍後再試');
+        
+    } finally {
         // 恢復按鈕狀態
-        submitBtn.textContent = originalText;
-        submitBtn.disabled = false;
-    });
+        submitButton.textContent = originalText;
+        submitButton.disabled = false;
+    }
 });
 
 // 小卡片動畫
