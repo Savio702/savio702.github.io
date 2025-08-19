@@ -474,24 +474,12 @@ if (lightbox) {
 
 // 社交媒體連結處理
 const socialLinks = document.querySelectorAll('.social-link');
+
 socialLinks.forEach(link => {
     const handleSocialClick = (e) => {
-        e.preventDefault();
-        const platform = link.querySelector('i').className;
-        let url = '#';
-        
-        // 根據平台設定URL
-        if (platform.includes('facebook')) {
-            url = 'https://facebook.com/yourprofile';
-        } else if (platform.includes('instagram')) {
-            url = 'https://instagram.com/yourprofile';
-        } else if (platform.includes('twitter')) {
-            url = 'https://twitter.com/yourprofile';
-        } else if (platform.includes('linkedin')) {
-            url = 'https://linkedin.com/in/yourprofile';
-        }
-        
-        window.open(url, '_blank');
+        e.preventDefault(); // 防止原本跳轉
+        const url = link.href; // 直接使用 HTML href
+        window.open(url, '_blank'); // 新視窗打開
     };
 
     link.addEventListener('click', handleSocialClick);
