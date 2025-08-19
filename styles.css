@@ -655,7 +655,7 @@ body {
 }
 
 /* 感謝頁樣式 */
-.thanks-page {
+/* .thanks-page {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -681,8 +681,8 @@ body {
 .thanks-container p {
     margin-bottom: 30px;
     font-size: 1.2rem;
-}
-
+} 
+ */
 
 /* 響應式設計 */
 @media (max-width: 768px) {
