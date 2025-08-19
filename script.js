@@ -5,13 +5,30 @@ const navMenu = document.querySelector('.nav-menu');
 hamburger.addEventListener('click', () => {
     hamburger.classList.toggle('active');
     navMenu.classList.toggle('active');
+    
+    // 防止背景滾動
+    if (navMenu.classList.contains('active')) {
+        document.body.style.overflow = 'hidden';
+    } else {
+        document.body.style.overflow = '';
+    }
 });
 
 // 關閉導航選單當點擊連結
 document.querySelectorAll('.nav-link').forEach(n => n.addEventListener('click', () => {
     hamburger.classList.remove('active');
     navMenu.classList.remove('active');
+    document.body.style.overflow = '';
 }));
+
+// 點擊導航選單外部關閉選單
+document.addEventListener('click', (e) => {
+    if (!hamburger.contains(e.target) && !navMenu.contains(e.target)) {
+        hamburger.classList.remove('active');
+        navMenu.classList.remove('active');
+        document.body.style.overflow = '';
+    }
+});
 
 // 平滑滾動到錨點
 document.querySelectorAll('a[href^="#"]').forEach(anchor => {
@@ -19,9 +36,18 @@ document.querySelectorAll('a[href^="#"]').forEach(anchor => {
         e.preventDefault();
         const target = document.querySelector(this.getAttribute('href'));
         if (target) {
-            target.scrollIntoView({
-                behavior: 'smooth',
-                block: 'start'
+            // 關閉導航選單（如果開啟）
+            hamburger.classList.remove('active');
+            navMenu.classList.remove('active');
+            document.body.style.overflow = '';
+            
+            // 計算偏移量（考慮固定導航欄高度）
+            const navHeight = document.querySelector('.navbar').offsetHeight;
+            const targetPosition = target.offsetTop - navHeight;
+            
+            window.scrollTo({
+                top: targetPosition,
+                behavior: 'smooth'
             });
         }
     });
@@ -69,8 +95,10 @@ const showRandomFourAll = () => {
     showOnlyItems(pick);
 };
 
+// 改進的篩選功能，支援觸控
 filterButtons.forEach(button => {
-    button.addEventListener('click', () => {
+    // 支援點擊和觸控
+    const handleFilter = () => {
         filterButtons.forEach(btn => btn.classList.remove('active'));
         button.classList.add('active');
 
@@ -84,6 +112,12 @@ filterButtons.forEach(button => {
             item => item.getAttribute('data-category') === filterValue
         );
         showOnlyItems(matched);
+    };
+
+    button.addEventListener('click', handleFilter);
+    button.addEventListener('touchend', (e) => {
+        e.preventDefault();
+        handleFilter();
     });
 });
 
@@ -115,7 +149,6 @@ if (aboutSection) {
     observer.observe(aboutSection);
 }
 
-// 聯絡表單處理
 // 聯絡表單處理 (Netlify 版本)
 const form = document.getElementById("contactForm");
 const thankCard = document.getElementById("thankCard");
@@ -133,6 +166,19 @@ form.addEventListener("submit", function(event) {
         return;
     }
 
+    // 電子郵件格式驗證
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+        alert('請輸入有效的電子郵件地址');
+        return;
+    }
+
+    // 顯示載入狀態
+    const submitBtn = form.querySelector('button[type="submit"]');
+    const originalText = submitBtn.textContent;
+    submitBtn.textContent = '發送中...';
+    submitBtn.disabled = true;
+
     // 使用 FormData 提交到 Netlify
     const formData = new FormData(form);
 
@@ -140,15 +186,24 @@ form.addEventListener("submit", function(event) {
         method: "POST",
         body: formData
     })
-    .then(() => {
-        thankCard.style.display = "block"; // 顯示小卡片
-        form.reset(); // 清空表單
-        setTimeout(() => {
-            thankCard.style.display = "none"; // 5秒後自動消失
-        }, 5000);
+    .then((response) => {
+        if (response.ok) {
+            thankCard.style.display = "block"; // 顯示小卡片
+            form.reset(); // 清空表單
+            setTimeout(() => {
+                thankCard.style.display = "none"; // 5秒後自動消失
+            }, 5000);
+        } else {
+            throw new Error('提交失敗');
+        }
     })
     .catch((error) => {
         alert("送出失敗，請稍後再試：" + error);
+    })
+    .finally(() => {
+        // 恢復按鈕狀態
+        submitBtn.textContent = originalText;
+        submitBtn.disabled = false;
     });
 });
 
@@ -290,29 +345,47 @@ const closeLightbox = () => {
     document.body.style.overflow = '';
 };
 
+// 改進的作品集項目點擊處理，支援觸控
 portfolioItems.forEach(item => {
-    item.addEventListener('click', () => {
+    const handleItemClick = () => {
         const url = item.getAttribute('data-video-url');
         if (url) {
             openLightboxWithUrl(url);
         }
+    };
+
+    item.addEventListener('click', handleItemClick);
+    item.addEventListener('touchend', (e) => {
+        e.preventDefault();
+        handleItemClick();
     });
 });
 
 if (videoCloseBtn) {
     videoCloseBtn.addEventListener('click', closeLightbox);
+    videoCloseBtn.addEventListener('touchend', (e) => {
+        e.preventDefault();
+        closeLightbox();
+    });
 }
 
 if (lightbox) {
     lightbox.addEventListener('click', (e) => {
         if (e.target === lightbox) closeLightbox();
     });
+    
+    // 支援 ESC 鍵關閉燈箱
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && lightbox.classList.contains('active')) {
+            closeLightbox();
+        }
+    });
 }
 
 // 社交媒體連結處理
 const socialLinks = document.querySelectorAll('.social-link');
 socialLinks.forEach(link => {
-    link.addEventListener('click', (e) => {
+    const handleSocialClick = (e) => {
         e.preventDefault();
         const platform = link.querySelector('i').className;
         let url = '#';
@@ -329,16 +402,28 @@ socialLinks.forEach(link => {
         }
         
         window.open(url, '_blank');
+    };
+
+    link.addEventListener('click', handleSocialClick);
+    link.addEventListener('touchend', (e) => {
+        e.preventDefault();
+        handleSocialClick(e);
     });
 });
 
 // 部落格文章點擊事件
 const blogCards = document.querySelectorAll('.blog-card');
 blogCards.forEach(card => {
-    card.addEventListener('click', () => {
+    const handleBlogClick = () => {
         const title = card.querySelector('h3').textContent;
         console.log(`點擊了部落格文章: ${title}`);
         // 這裡可以導向詳細的部落格頁面
+    };
+
+    card.addEventListener('click', handleBlogClick);
+    card.addEventListener('touchend', (e) => {
+        e.preventDefault();
+        handleBlogClick();
     });
 });
 
@@ -347,6 +432,7 @@ const createBackToTopButton = () => {
     const backToTop = document.createElement('button');
     backToTop.innerHTML = '<i class="fas fa-arrow-up"></i>';
     backToTop.className = 'back-to-top';
+    backToTop.setAttribute('aria-label', '返回頂部');
     backToTop.style.cssText = `
         position: fixed;
         bottom: 20px;
@@ -363,6 +449,7 @@ const createBackToTopButton = () => {
         transition: all 0.3s ease;
         z-index: 1000;
         font-size: 1.2rem;
+        box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3);
     `;
     
     document.body.appendChild(backToTop);
@@ -379,11 +466,17 @@ const createBackToTopButton = () => {
     });
     
     // 點擊返回頂部
-    backToTop.addEventListener('click', () => {
+    const scrollToTop = () => {
         window.scrollTo({
             top: 0,
             behavior: 'smooth'
         });
+    };
+
+    backToTop.addEventListener('click', scrollToTop);
+    backToTop.addEventListener('touchend', (e) => {
+        e.preventDefault();
+        scrollToTop();
     });
     
     // 懸停效果
@@ -409,4 +502,14 @@ window.addEventListener('load', () => {
 // 頁面載入時的淡入效果
 document.body.style.opacity = '0';
 document.body.style.transition = 'opacity 0.5s ease';
+
+// 防止雙擊縮放（iOS）
+let lastTouchEnd = 0;
+document.addEventListener('touchend', function (event) {
+    const now = (new Date()).getTime();
+    if (now - lastTouchEnd <= 300) {
+        event.preventDefault();
+    }
+    lastTouchEnd = now;
+}, false);
 
